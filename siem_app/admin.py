@@ -15,4 +15,4 @@ class SecurityResultsAdmin(admin.ModelAdmin):
 
 @admin.register(CrawlHistory)
 class CrawlHistoryAdmin(admin.ModelAdmin):
-    list_display = ['crawled_website']
+    list_display = ['crawl_results', 'crawled_url']

@@ -12,7 +12,8 @@ def index(request):
 
     return render(request, 'siem_app/index.html', {
         'scan_output': latest_scan_result.scan_output if latest_scan_result else None,
-        'crawl_results': latest_crawl_result.crawled_website if latest_crawl_result else None,
+        'crawl_results': latest_crawl_result.crawl_results if latest_crawl_result else None,
+        'crawled_url': latest_crawl_result.crawled_url if latest_crawl_result else None,
         'log_entries': latest_log_entries if latest_log_entries else None,
         'accuracy': latest_log_entry.accuracy if latest_log_entry else None, 
         'security_results': latest_security_result.result if latest_security_result else None,
@@ -25,15 +26,16 @@ def scan_website_view(request):
     # Save scan result to the database
     ScanResults.objects.create(website_url=website_url, scan_output=scan_output)
 
-    return render(request, 'siem_app/scan_result.html', {'scan_output': scan_output})
+    return render(request, 'siem_app/index.html', {'scan_output': scan_output})
 
 def crawl_website_view(request):
-    url = request.POST.get('url')
-    crawl_results = crawl_website(url)
+    url = request.POST.get('crawl_website_url')
+    results_list = crawl_website(url)
+    crawl_results = '\n'.join(results_list)
     # Save crawl results to the database (if needed)
-    CrawlResults.objects.create(crawled_website=url)
+    CrawlHistory.objects.create(crawled_url=url, crawl_results=crawl_results)
 
-    return render(request, 'siem_app/crawl_result.html', {'crawl_results': crawl_results})
+    return render(request, 'siem_app/index.html', {'crawl_results': crawl_results, 'crawled_url': url})
 
 
 def analyse_logs_view(request):

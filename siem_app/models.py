@@ -19,4 +19,5 @@ class SecurityResults(models.Model):
     status = models.CharField(max_length=10)
 
 class CrawlHistory(models.Model):
-    crawled_website = models.URLField()
+    crawl_results = models.TextField(null=True)
+    crawled_url = models.URLField(null=True)
