@@ -1,0 +1,84 @@
+<!-- siem_app/templates/siem_app/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SIEM App</title>
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-item {
+            border: 1px solid #ddd;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>SIEMantics 1.0 - Created by Cyril Okworu</h1>
+    
+    <div class="grid-container">
+        <div class="grid-item" id="scan-section">
+            <h2>Scan Result</h2>
+            <!-- Form for entering URL to scan -->
+            <form method="post" action="{% url 'scan_website' %}">
+                {% csrf_token %}
+                <label for="website_url">Enter URL to crawl:</label>
+                <input type="url" id="website_url" name="website_url" required>
+                <button type="submit">Scan</button>
+            </form>
+            {% if scan_output %}
+                <p>Scan output: {{ scan_output }}</p>
+            {% else %}
+                <p>No scan result available.</p>
+            {% endif %}
+        </div>
+
+        <div class="grid-item" id="crawl-section">
+            <h2>Crawl Result</h2>
+            <!-- Form for entering URL to crawl -->
+            <form method="post" action="{% url 'crawl_website' %}">
+                {% csrf_token %}
+                <label for="website_url">Enter URL to scan:</label>
+                <input type="url" id="crawl_website_url" name="crawl_website_url" required>
+                <button type="submit">Crawl</button>
+            </form>
+            {% if crawl_results %}
+                <p>Crawl results: {{ crawl_results }}</p>
+            {% else %}
+                <p>No crawl result available.</p>
+            {% endif %}
+        </div>
+
+        <div class="grid-item" id="log-analysis-section">
+            <h2>Log Analysis Result</h2>
+            <a href="{% url 'analyse_logs' %}">Analyse Log Files</a>
+            {% if log_entries %}
+            <ul>
+                {% for log_entry in log_entries %}
+                <li>
+                    <p>Log Text: {{ log_entry.log_text }}</p>
+                    <p>Log Path: {{ log_entry.log_path }}</p>
+                    <p>Accuracy: {{ log_entry.accuracy }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No suspicious logs found.</p>
+            {% endif %}
+        </div>
+
+        <div class="grid-item" id="security-section">
+            <h2>Security Results</h2>
+            {% if security_results %}
+                <p>Security results: {{ security_results }}</p>
+            {% else %}
+                <p>No security result available.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>
