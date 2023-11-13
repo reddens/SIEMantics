@@ -1,6 +1,11 @@
+import subprocess
+from django.http import JsonResponse
 from django.shortcuts import render
 from .models import ScanResults, LogEntry, SecurityResults, CrawlHistory
-from .scripts import scan_website, crawl_website, run_log_analysis, run_sca_benchmark, crawl_system_for_logs, analyse_logs, train_and_evaluate_classifier, extract_relevant_data, get_cve_info
+from .scripts import scan_website, crawl_website, run_log_analysis, run_sca_benchmark, crawl_system_for_logs, analyse_logs, train_and_evaluate_classifier, extract_relevant_data, get_cve_info, security_comms
+from celery import shared_task
+
+
 
 def index(request):
     # Retrieve the latest objects from each model
@@ -59,3 +64,12 @@ def analyse_logs_view(request):
     return render(request, 'siem_app/index.html', {
         'log_entries': latest_log_entries,
     })
+
+def sca_benchmark_view(request):
+    list_of_issues = run_sca_benchmark()
+    joined_list =  '\n'.join(list_of_issues)
+
+    SecurityResults.objects.create(result=joined_list)
+
+    security_results = SecurityResults.objects.last().result
+    return render(request, 'siem_app/index.html', {'security_results': security_results})

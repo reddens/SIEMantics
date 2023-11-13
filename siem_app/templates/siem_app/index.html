@@ -177,11 +177,13 @@ max-height: 100px;
 
 <h2>SCA Benchmark</h2>
 
+<a href="{% url 'get_score' %}">SCA Score</a>
+
 <div class="results-container">
 
 {% if security_results %}
 
-    <p>Security results: {{ security_results }}</p>
+    <p>Security results: {{ security_results|linebreaks }}</p>
 
 {% else %}
 

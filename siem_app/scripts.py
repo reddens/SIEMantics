@@ -6,17 +6,20 @@ import pandas as pd
 import subprocess
 import csv
 from bs4 import BeautifulSoup
+from celery import shared_task
 from urllib.parse import urljoin
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, classification_report
+from .models import ScanResults
 
 #_____________________
 
 #Web Server Scanner - CYRIL OAKS
 #_____________________
 
+@shared_task
 def scan_website(website_url):
         process = subprocess.Popen(['nikto', '-h', website_url], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output = process.communicate()
@@ -193,9 +196,7 @@ def analyze_security_results(results):
     security_issues = []
 
     for cmd_name, _, status in results:
-        if status == "FAIL":
-            security_issues.append((cmd_name, "Security issue detected"))
-            # Implement additional logic to provide solutions here
+        security_issues.append((cmd_name, status))
 
     return security_issues
 
@@ -253,10 +254,10 @@ def run_sca_benchmark():
     security_results = security_comms()
 
     security_issues = analyze_security_results(security_results)
-
+    list_of_issues = []
     if security_issues:
         print("\nSecurity Issues:")
-        for cmd, issue in security_issues:
-            print(f"{cmd}: {issue}")
+        for cmd, status in security_issues:
+            list_of_issues.append(f"{cmd}: {status}")
 
-    return security_results, security_issues
+    return list_of_issues
