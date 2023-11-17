@@ -19,11 +19,10 @@ from .models import ScanResults
 #Web Server Scanner - CYRIL OAKS
 #_____________________
 
-@shared_task
 def scan_website(website_url):
-        process = subprocess.Popen(['nikto', '-h', website_url], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output = process.communicate()
-        return output.decode('utf-8')
+    process = subprocess.Popen(['nikto', '-h', website_url], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = process.communicate()
+    return stdout.decode('utf-8')
 
 #_____________________
 
@@ -105,6 +104,7 @@ def crawl_system_for_logs(root_directory):
                 print(f"Found log file: {log_file_path}")
     return log_files
 
+
 # Function to analyze log files
 def analyse_logs(log_files):
     log_data = []
@@ -123,6 +123,7 @@ def analyse_logs(log_files):
     normal_logs = [line for line in log_data if 'error' not in line.lower()]
 
     return normal_logs, suspicious_logs, suspicious_logs_paths
+
 
 # Machine Learning model (Naive Bayes classifier) for log analysis
 def train_and_evaluate_classifier(normal_logs, suspicious_logs):
@@ -148,6 +149,7 @@ def train_and_evaluate_classifier(normal_logs, suspicious_logs):
     report = classification_report(y_test, y_pred, target_names=['Normal', 'Suspicious'])
     
     return accuracy, report, y_pred
+
 
 def run_log_analysis():
     root_directory = "/"
@@ -186,11 +188,13 @@ def run_command(command):
     except subprocess.CalledProcessError as e:
         return e.output.strip()
 
+
 def write_results_to_csv(results, output_file):
     with open(output_file, 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
         csv_writer.writerow(['Command', 'Result', 'Status'])
         csv_writer.writerows(results)
+
 
 def analyze_security_results(results):
     security_issues = []
@@ -249,6 +253,7 @@ def security_comms():
     print(f"Security results saved to {output_file}")
 
     return security_results
+
 
 def run_sca_benchmark():
     security_results = security_comms()

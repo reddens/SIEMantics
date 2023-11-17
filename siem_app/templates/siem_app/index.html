@@ -2,7 +2,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <title>SIEM App</title>
 
 
@@ -55,7 +58,7 @@ max-height: 100px;
 
 <!-- VULNERABILITY SCANNER -->
 
-<h2>Vulnerability Scanner</h2>
+<h2><i class="fa-solid fa-shield-alt"></i> Vulnerability Scanner</h2>
 
 <!-- Form for entering URL to scan -->
 
@@ -91,7 +94,7 @@ max-height: 100px;
 
 <!-- WEB CRAWLER -->
 
-<h2>Web Crawler</h2>
+<h2><i class="fa-solid fa-spider"></i> Web Crawler</h2>
 
 <!-- Form for entering URL to crawl -->
 
@@ -135,7 +138,7 @@ max-height: 100px;
 
 <!-- LOG ANALYSER -->
 
-<h2>Log Analyser</h2>
+<h2><i class="fa-solid fa-file-alt"></i> Log Analyser</h2>
 
 <a href="{% url 'analyse_logs' %}">Analyse Log Files</a>
 
@@ -175,7 +178,7 @@ max-height: 100px;
 
 <!-- SCA BENCHMARK -->
 
-<h2>SCA Benchmark</h2>
+<h2><i class="fa-solid fa-chart-bar"></i> SCA Benchmark</h2>
 
 <a href="{% url 'get_score' %}">SCA Score</a>
 
@@ -196,6 +199,143 @@ max-height: 100px;
 </div>
 
 </div>
+
+
+<script>
+    $(document).ready(function () {
+        var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+    
+        // Function to create and initialize a progress bar
+        function createProgressBar(container) {
+            var progressBar = $('<div id="progressbar"></div>').appendTo(container);
+    
+            // Initialize the progress bar
+            progressBar.progressbar({
+                value: false
+            });
+    
+            return progressBar;
+        }
+    
+        // Scan Website
+        $('#scan-section form').submit(function(e) {
+            e.preventDefault();
+            var form = $(this);
+
+            // Show loading state
+            var loadingMessage = 'Scanning ' + $('#website_url').val();
+            $('#scan-section .results-container').html('<p>' + loadingMessage + '</p>');
+            var progressBar = createProgressBar($('#scan-section .results-container'));
+
+            // Initialize the progress bar
+            progressBar.progressbar({
+                value: false
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function(data) {
+                    // Update results
+                    $('#scan-section .results-container').html('<p>' + data.scan_results.replace(/\n/g, '<br>') + '</p>');
+                    progressBar.progressbar("destroy");
+                }
+            });
+        });
+    
+
+        // Crawl Website
+        $('#crawl-section form').submit(function(e) {
+            e.preventDefault();
+            var form = $(this);
+
+            // Show loading state
+            var loadingMessage = 'Crawling ' + $('#crawl_website_url').val();
+            $('#crawl-section .results-container').html('<p>' + loadingMessage + '</p>');
+            var progressBar = createProgressBar($('#crawl-section .results-container'));
+
+            // Initialize the progress bar
+            progressBar.progressbar({
+                value: false
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: form.attr('action'),
+                data: form.serialize(),
+                success: function(data) {
+                    // Update results
+                    $('#crawl-section .results-container').html('<p>' + data.crawl_results.replace(/\n/g, '<br>') + '</p>');
+                    progressBar.progressbar("destroy");
+                }
+            });
+        });
+
+        // Analyse Logs
+        $('#log-analysis-section a').click(function(e) {
+            e.preventDefault();
+
+            // Show loading state
+            $('#log-analysis-section .results-container').html('Analysing Log Files...');
+            var progressBar = createProgressBar($('#log-analysis-section .results-container'));
+
+            // Initialize the progress bar
+            progressBar.progressbar({
+                value: false
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr('href'),
+                success: function(data) {
+                    // Update results
+                    var logEntriesHtml = '';
+                    for (var i = 0; i < data.log_entries.length; i++) {
+                        var logEntry = data.log_entries[i];
+                        logEntriesHtml += '<p>Log Text: ' + logEntry.log_text + '</p>';
+                        logEntriesHtml += '<p>Log Path: ' + logEntry.log_path + '</p>';
+                        logEntriesHtml += '<p>Accuracy: ' + logEntry.accuracy + '</p>';
+                    }
+                    $('#log-analysis-section .results-container').html(logEntriesHtml);
+                    progressBar.progressbar("destroy");
+                }
+            });
+        });
+
+        // Get Score 
+        $('#security-section a').click(function(e) {
+            e.preventDefault();
+
+            // Show loading state
+            $('#security-section .results-container').html('Calculating SCA Score...');
+            var progressBar = createProgressBar($('#security-section .results-container'));
+
+            // Initialize the progress bar
+            progressBar.progressbar({
+                value: false
+            });
+
+            $.ajax({
+                type: 'GET',
+                url: $(this).attr('href'),
+                success: function(data) {
+                    // Update results
+                    $('#security-section .results-container').html('<p>' + data.security_results.replace(/\n/g, '<br>') + '</p>');
+                    progressBar.progressbar("destroy");
+                }
+            });
+        });
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+    });
+</script>
 
 </body>
 
