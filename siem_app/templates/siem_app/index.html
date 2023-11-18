@@ -238,7 +238,7 @@ max-height: 100px;
                 data: form.serialize(),
                 success: function(data) {
                     // Update results
-                    $('#scan-section .results-container').html('<p>' + data.scan_results.replace(/\n/g, '<br>') + '</p>');
+                    $('#scan-section .results-container').html('<p>' + data.scan_output.replace(/\n/g, '<br>') + '</p>');
                     progressBar.progressbar("destroy");
                 }
             });
