@@ -1,6 +1,0 @@
-2023-11-12 19:22:36.901 [info] update#setState disabled
-2023-11-12 19:22:36.901 [info] update#ctor - updates are disabled as there is no update URL
-2023-11-12 19:24:48.276 [info] Extension host with pid 11185 exited with code: 0, signal: unknown.
-2023-11-12 19:24:48.287 [error] [UtilityProcessWorker]: terminated unexpectedly with code 15, signal: unknown
-2023-11-12 19:24:48.288 [error] [UtilityProcess id: 1, type: fileWatcher, pid: 11165]: crashed with code 15 and reason 'killed'
-2023-11-12 19:25:25.845 [info] Extension host with pid 11291 exited with code: 0, signal: unknown.
