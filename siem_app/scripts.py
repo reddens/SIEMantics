@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, classification_report
 from .models import ScanResults
+from numba import jit
 
 #_____________________
 
@@ -20,7 +21,9 @@ from .models import ScanResults
 #_____________________
 
 def scan_website(website_url):
-    process = subprocess.Popen(['nikto', '-h', website_url], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    additional_flags = ['-no404', '-nossl', '-timeout', '2', '-nointeractive', '-C', 'none', '-Tuning', '1:0']
+    process = subprocess.Popen(['nikto', '-h', website_url] + additional_flags, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
     return stdout.decode('utf-8')
 
@@ -180,7 +183,6 @@ def run_log_analysis():
 
 #SCA Benchmark - CYRIL OAKS
 #________________________
-
 def run_command(command):
     try:
         result = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT, universal_newlines=True)
@@ -203,7 +205,6 @@ def analyze_security_results(results):
         security_issues.append((cmd_name, status))
 
     return security_issues
-
 
 def security_comms():
     security_commands = [
@@ -253,7 +254,6 @@ def security_comms():
     print(f"Security results saved to {output_file}")
 
     return security_results
-
 
 def run_sca_benchmark():
     security_results = security_comms()

@@ -7,7 +7,7 @@ from .scripts import scan_website, crawl_website, run_log_analysis, run_sca_benc
 from celery import shared_task
 from django.core.serializers import serialize
 from concurrent.futures import ThreadPoolExecutor
-
+from numba import jit
 
 def index(request):
     # Retrieve the latest objects from each model
@@ -25,9 +25,20 @@ def index(request):
         'accuracy': latest_log_entry.accuracy if latest_log_entry else None, 
         'security_results': latest_security_result.result if latest_security_result else None,
     })
-    
+
+def convert_https_to_http(url):
+    # Check if the URL starts with "https://"
+    if url.startswith("https://"):
+        # Replace "https://" with "http://"
+        url = url.replace("https://", "http://", 1)  # The '1' parameter ensures only the first occurrence is replaced
+    return url
+
+
 def scan_website_view(request):
     website_url = request.POST.get('website_url')
+
+    # Convert "https://" to "http://"
+    website_url = convert_https_to_http(website_url)
 
     # Increase the number of threads if needed
     with ThreadPoolExecutor(max_workers=5) as executor:
@@ -40,7 +51,6 @@ def scan_website_view(request):
     ScanResults.objects.create(website_url=website_url, scan_output=scan_output)
 
     return JsonResponse({'scan_output': scan_output})
-
 
 def crawl_website_view(request):
     url = request.POST.get('crawl_website_url')
@@ -56,6 +66,7 @@ def crawl_website_view(request):
     CrawlHistory.objects.create(crawled_url=url, crawl_results=crawl_results)
 
     return JsonResponse({'crawl_results': crawl_results, 'crawled_url': url})
+
 
 def analyse_logs_view(request):
     # Using ThreadPoolExecutor to run run_log_analysis asynchronously
